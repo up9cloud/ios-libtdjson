@@ -1,0 +1,37 @@
+on:
+  push:
+    tags:
+    - '*'
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v1
+      - run: ./build.sh
+      - run: |
+          tar -czvf install.tar.gz install
+          tar -czvf libs.tar.gz libs
+          tar -czvf dylibs.tar.gz dylibs
+          tar -czvf cocoapod.tar.gz dylibs/macOS/libtdjson.dylib dylibs/iOS/libtdjson.dylib
+      - uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          artifacts: "install.tar.gz,libs.tar.gz,dylibs.tar.gz,cocoapod.tar.gz"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: |
+            - `install.tar.gz`: dev pack including everything for all platforms
+            - `libs.tar.gz`: static lib files for all platforms
+            - `dylibs.tar.gz`: dynamic lib files for all platforms
+            - `cocoapod.tar.gz`: files for cocoapod, see ./libtdjson.podspec
+      - run: |
+          brew install cocoapods
+          pod trunk push --allow-warnings libtdjson.podspec
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${secrets.COCOAPODS_TRUNK_TOKEN}
+      - uses: up9cloud/action-notify@master
+        if: cancelled() == false
+        env:
+          GITHUB_JOB_STATUS: ${{ job.status }}
+          TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
+          TELEGRAM_CHAT_ID: ${{secrets.TELEGRAM_CHAT_ID}}

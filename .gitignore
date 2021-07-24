@@ -35,3 +35,10 @@ Carthage/Build
 # `pod install` in .travis.yml
 #
 # Pods/
+
+/build/
+/dylibs/
+/install/
+/libs/
+/td/
+/*.tar.gz

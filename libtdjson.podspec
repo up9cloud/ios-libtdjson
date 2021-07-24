@@ -9,34 +9,14 @@
 Pod::Spec.new do |s|
   s.name             = 'libtdjson'
   s.version          = '0.1.0'
-  s.summary          = 'A short description of libtdjson.'
-
-# This description is used to generate tags and improve search results.
-#   * Think: What does it do? Why did you write it? What is the focus?
-#   * Try to keep it short, snappy and to the point.
-#   * Write the description between the DESC delimiters below.
-#   * Finally, don't worry about the indent, CocoaPods strips it!
-
-  s.description      = <<-DESC
-TODO: Add long description of the pod here.
-                       DESC
-
-  s.homepage         = 'https://github.com/ee07d928165ab1a631583102ab1cae56e6651c83/libtdjson'
-  # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
+  s.summary          = 'TDLib JSON interface, shared lib (libtdjson.dylib)'
+  s.homepage         = 'https://github.com/up9cloud/ios-libtdjson'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'ee07d928165ab1a631583102ab1cae56e6651c83' => '8325632+up9cloud@users.noreply.github.com' }
-  s.source           = { :git => 'https://github.com/ee07d928165ab1a631583102ab1cae56e6651c83/libtdjson.git', :tag => s.version.to_s }
-  # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
+  s.author           = { 'up9cloud' => '8325632+up9cloud@users.noreply.github.com' }
+  s.source           = { :http => 'https://github.com/up9cloud/ios-libtdjson/releases/download/v0.1.0/cocoapod.tar.gz' }
 
+  s.osx.vendored_libraries = 'dylibs/macOS/libtdjson.dylib'
+  s.osx.deployment_target = '10.11'
+  s.ios.vendored_libraries = 'dylibs/iOS/libtdjson.dylib'
   s.ios.deployment_target = '9.0'
-
-  s.source_files = 'libtdjson/Classes/**/*'
-  
-  # s.resource_bundles = {
-  #   'libtdjson' => ['libtdjson/Assets/*.png']
-  # }
-
-  # s.public_header_files = 'Pod/Classes/**/*.h'
-  # s.frameworks = 'UIKit', 'MapKit'
-  # s.dependency 'AFNetworking', '~> 2.3'
 end

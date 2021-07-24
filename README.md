@@ -1,6 +1,5 @@
 # libtdjson
 
-[![CI Status](https://img.shields.io/travis/ee07d928165ab1a631583102ab1cae56e6651c83/libtdjson.svg?style=flat)](https://travis-ci.org/ee07d928165ab1a631583102ab1cae56e6651c83/libtdjson)
 [![Version](https://img.shields.io/cocoapods/v/libtdjson.svg?style=flat)](https://cocoapods.org/pods/libtdjson)
 [![License](https://img.shields.io/cocoapods/l/libtdjson.svg?style=flat)](https://cocoapods.org/pods/libtdjson)
 [![Platform](https://img.shields.io/cocoapods/p/libtdjson.svg?style=flat)](https://cocoapods.org/pods/libtdjson)
@@ -20,10 +19,21 @@ it, simply add the following line to your Podfile:
 pod 'libtdjson'
 ```
 
-## Author
+## Q&A
 
-ee07d928165ab1a631583102ab1cae56e6651c83, 8325632+up9cloud@users.noreply.github.com
+> An error was encountered processing the command (domain=FBSOpenApplicationServiceErrorDomain,code=1):
 
-## License
+The app will crash if identification name of .dylib isn't correct
 
-libtdjson is available under the MIT license. See the LICENSE file for more info.
+```bash
+# check id
+otool -D libtdjson.dylib
+
+# fix id
+install_name_tool -id @rpath/libtdjson.dylib libtdjson.dylib
+```
+
+## TODO
+
+- [ ] Support [Carthage](https://github.com/Carthage/Carthage/blob/master/Documentation/Artifacts.md#cartfile)
+- [ ] Support M1 (Apple Silicon), see [this](https://github.com/tdlib/td/pull/1620)
