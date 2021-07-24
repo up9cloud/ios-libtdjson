@@ -25,7 +25,6 @@ jobs:
             - `dylibs.tar.gz`: dynamic lib files for all platforms
             - `cocoapod.tar.gz`: files for cocoapod, see ./libtdjson.podspec
       - run: |
-          brew install cocoapods
           pod trunk push --allow-warnings libtdjson.podspec
         env:
           COCOAPODS_TRUNK_TOKEN: ${secrets.COCOAPODS_TRUNK_TOKEN}
@@ -36,6 +35,6 @@ jobs:
     steps:
       - uses: up9cloud/action-notify@master
         env:
-          GITHUB_JOB_STATUS: ${{ job.status }}
+          GITHUB_JOB_STATUS: ${{ needs.build.result }}
           TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
           TELEGRAM_CHAT_ID: ${{secrets.TELEGRAM_CHAT_ID}}
