@@ -145,13 +145,13 @@ for platform in $platforms; do
 
 		# static lib
 		for file in $INSTALL_ROOT_DIR/tdjson/${platform}/lib/*.a; do
-			f = basename $file
+			f=$(basename $file)
 			lib="$INSTALL_ROOT_DIR/tdjson/${platform}/lib/$f"
 			lib_simulator="$INSTALL_ROOT_DIR/tdjson/${platform}-simulator/lib/$f"
 			mkdir -p $LIBS_DIR/$platform/lib
 			lipo -create $lib $lib_simulator -o $LIBS_DIR/$platform/lib/$f
 		done
 		rm -fr $LIBS_DIR/$platform/include
-		cp $install_dir/include $LIBS_DIR/$platform/
+		cp -r $install_dir/include $LIBS_DIR/$platform/
 	fi
 done
