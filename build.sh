@@ -37,7 +37,7 @@ TD_DIR="$__DIR__/td"
 brew install gperf cmake
 if [ ! -d "$TD_DIR" ]; then
 	cd $__DIR__
-	git clone git@github.com:tdlib/td.git
+	git clone https://github.com/tdlib/td.git
 	cd td
 	git checkout tags/v1.7.0
 	cd ..
