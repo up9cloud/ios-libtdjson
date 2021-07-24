@@ -29,8 +29,12 @@ jobs:
           pod trunk push --allow-warnings libtdjson.podspec
         env:
           COCOAPODS_TRUNK_TOKEN: ${secrets.COCOAPODS_TRUNK_TOKEN}
+  notify:
+    if: cancelled() == false
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
       - uses: up9cloud/action-notify@master
-        if: cancelled() == false
         env:
           GITHUB_JOB_STATUS: ${{ job.status }}
           TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}

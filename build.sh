@@ -12,6 +12,7 @@ download_prebuilt_openssl() {
 		OpenSSL-1.1.1100/iphonesimulator \
 		OpenSSL-1.1.1100/macosx
 
+	mkdir -p $install_root_dir
 	# standardize name
 	mv OpenSSL-1.1.1100 $install_root_dir/openssl
 	mv $install_root_dir/openssl/iphoneos $install_root_dir/openssl/iOS
