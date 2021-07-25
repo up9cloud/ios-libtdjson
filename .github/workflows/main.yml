@@ -28,7 +28,13 @@ jobs:
             - `cocoapod.tar.gz`: files for cocoapod, see ./libtdjson.podspec
       - run: |
           brew install coreutils
-          dir=$(dirname $(grealpath $(which pod)))/../libexec/gems
+          dir=$(dirname $(grealpath $(which pod)))
+          v=$(sw_vers -productVersion)
+          if [ "$v" = "`echo -e "$v\n10.999" | sort -V | head -n1`" ]; then
+            dir=$(grealpath $dir/../gems)
+          else
+            dir=$(grealpath $dir/../libexec/gems)
+          fi
           f=$(grep --include=\*.rb -rnwl $dir -e "unless lib_name.end_with?('.a')")
           sed -i '' "s/unless lib_name.end_with?('.a') && lib_name.start_with?('lib')/unless (lib_name.end_with?('.a') || lib_name.end_with?('.dylib')) \&\& File.basename(lib_name).start_with?('lib')/g" $f
           f=$(grep --include=\*.rb -rnwl $dir -e "validate_nonempty_patterns(attr_name, :error)")
