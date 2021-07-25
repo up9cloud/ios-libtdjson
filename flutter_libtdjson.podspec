@@ -7,17 +7,19 @@
 #
 
 Pod::Spec.new do |s|
+  _VERSION = ENV['GITHUB_REF'] ? ENV['GITHUB_REF'].sub(/^refs\/tags\/v/, '') : '0.1.0'
+
   s.name             = 'flutter_libtdjson'
-  s.version          = '0.1.0'
+  s.version          = _VERSION
   s.summary          = 'It\'s same as pod `libtdjson`, just for preventing name conflict'
   s.homepage         = 'https://github.com/up9cloud/ios-libtdjson'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'up9cloud' => '8325632+up9cloud@users.noreply.github.com' }
-  s.source           = { :http => 'https://github.com/up9cloud/ios-libtdjson/releases/download/v0.1.0/cocoapod.tar.gz' }
+  s.source           = { :http => "https://github.com/up9cloud/ios-libtdjson/releases/download/v#{_VERSION}/cocoapod.tar.gz" }
 
-  s.osx.vendored_libraries = 'dylibs/macOS/libtdjson.dylib'
+  s.osx.vendored_libraries = 'macOS/libtdjson.dylib'
   s.osx.deployment_target = '10.11'
-  s.ios.vendored_libraries = 'dylibs/iOS/libtdjson.dylib'
+  s.ios.vendored_libraries = 'iOS/libtdjson.dylib'
   s.ios.deployment_target = '9.0'
   s.pod_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
   s.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }

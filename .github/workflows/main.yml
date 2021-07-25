@@ -13,9 +13,14 @@ jobs:
           tar -czvf install.tar.gz install
           tar -czvf libs.tar.gz libs
           tar -czvf dylibs.tar.gz dylibs
-          # cocoapod will flatten single folder to root, and it will cause installing nothing in pod folder, prevent it by adding a empty folder
-          mkdir .placeholder
-          tar -czvf cocoapod.tar.gz dylibs/iOS/libtdjson.dylib dylibs/macOS/libtdjson.dylib LICENSE .placeholder
+      # CocoaPods will extract archive file and install `nothing` to pod if the folder depth > 2
+      # and it will also flatten single folder to root, so...
+      - run: |
+          cd dylibs
+          cp ../LICENSE .
+          tar -czvf cocoapod.tar.gz iOS/libtdjson.dylib macOS/libtdjson.dylib LICENSE
+          mv cocoapod.tar.gz ..
+          cd ..
       - uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
