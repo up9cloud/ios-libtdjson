@@ -13,7 +13,9 @@ jobs:
           tar -czvf install.tar.gz install
           tar -czvf libs.tar.gz libs
           tar -czvf dylibs.tar.gz dylibs
-          tar -czvf cocoapod.tar.gz dylibs/macOS/libtdjson.dylib dylibs/iOS/libtdjson.dylib
+          # cocoapod will flatten single folder to root, and it will cause installing nothing in pod folder, prevent it by adding a empty folder
+          mkdir .placeholder
+          tar -czvf cocoapod.tar.gz dylibs/iOS/libtdjson.dylib dylibs/macOS/libtdjson.dylib LICENSE .placeholder
       - uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
@@ -25,7 +27,14 @@ jobs:
             - `dylibs.tar.gz`: dynamic lib files for all platforms
             - `cocoapod.tar.gz`: files for cocoapod, see ./libtdjson.podspec
       - run: |
+          brew install coreutils
+          dir=$(dirname $(grealpath $(which pod)))/../libexec/gems
+          f=$(grep --include=\*.rb -rnwl $dir -e "unless lib_name.end_with?('.a')")
+          sed -i '' "s/unless lib_name.end_with?('.a') && lib_name.start_with?('lib')/unless (lib_name.end_with?('.a') || lib_name.end_with?('.dylib')) \&\& File.basename(lib_name).start_with?('lib')/g" $f
+          f=$(grep --include=\*.rb -rnwl $dir -e "validate_nonempty_patterns(attr_name, :error)")
+          sed -i '' "s/validate_nonempty_patterns(attr_name, :error)/(attr_name.to_s == 'vendored_libraries') || validate_nonempty_patterns(attr_name, :error)/g" $f
           pod trunk push --allow-warnings libtdjson.podspec
+          pod trunk push --allow-warnings flutter_libtdjson.podspec
         env:
           COCOAPODS_TRUNK_TOKEN: ${secrets.COCOAPODS_TRUNK_TOKEN}
   notify:

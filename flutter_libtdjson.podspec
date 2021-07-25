@@ -7,9 +7,9 @@
 #
 
 Pod::Spec.new do |s|
-  s.name             = 'libtdjson'
+  s.name             = 'flutter_libtdjson'
   s.version          = '0.1.0'
-  s.summary          = 'TDLib JSON interface, shared lib (libtdjson.dylib)'
+  s.summary          = 'It\'s same as pod `libtdjson`, just for preventing name conflict'
   s.homepage         = 'https://github.com/up9cloud/ios-libtdjson'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'up9cloud' => '8325632+up9cloud@users.noreply.github.com' }

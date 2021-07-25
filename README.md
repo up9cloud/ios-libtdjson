@@ -1,23 +1,34 @@
-# libtdjson
+# ios-libtdjson
 
 [![Version](https://img.shields.io/cocoapods/v/libtdjson.svg?style=flat)](https://cocoapods.org/pods/libtdjson)
 [![License](https://img.shields.io/cocoapods/l/libtdjson.svg?style=flat)](https://cocoapods.org/pods/libtdjson)
 [![Platform](https://img.shields.io/cocoapods/p/libtdjson.svg?style=flat)](https://cocoapods.org/pods/libtdjson)
 
-## Example
-
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
-
-## Requirements
-
 ## Installation
 
-libtdjson is available through [CocoaPods](https://cocoapods.org). To install
-it, simply add the following line to your Podfile:
+> CocoaPods
+
+libtdjson is available through [CocoaPods](https://cocoapods.org). To install it, simply add the following line to your Podfile:
 
 ```ruby
 pod 'libtdjson'
 ```
+
+or add it to your .podspec file:
+
+```ruby
+Pod::Spec.new do |s|
+  s.dependency 'libtdjson'
+end
+```
+
+> Carthage
+
+TODO:
+
+> Manually
+
+Download prebuilt files from `Release`, then do whatever you want.
 
 ## Q&A
 
