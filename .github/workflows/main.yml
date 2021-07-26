@@ -13,24 +13,33 @@ jobs:
           tar -czvf install.tar.gz install
           tar -czvf libs.tar.gz libs
           tar -czvf dylibs.tar.gz dylibs
-      # CocoaPods will extract archive file and install `nothing` to pod if the folder depth > 2
-      # and it will also flatten single folder to root, so...
+      # CocoaPods will extract archive file and install `nothing` to pod if the folder depth > 2 (bug?)
+      # and it will also move single folder to root (no option to turn off, https://github.com/CocoaPods/CocoaPods/pull/728), so can't just archive ./dylibs
       - run: |
           cd dylibs
           cp ../LICENSE .
           tar -czvf cocoapod.tar.gz iOS/libtdjson.dylib macOS/libtdjson.dylib LICENSE
           mv cocoapod.tar.gz ..
           cd ..
+      - name: cocoapod_modulemap.tar.gz
+        run: |
+          cd libs/iOS/include
+          cp ../../module.modulemap .
+          tar -czvf cocoapod_modulemap.tar.gz module.modulemap td/telegram/td_json_client.h td/telegram/tdjson_export.h
+          mv cocoapod_modulemap.tar.gz ../..
+          rm module.modulemap
+          cd ../..
       - uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: "install.tar.gz,libs.tar.gz,dylibs.tar.gz,cocoapod.tar.gz"
+          artifacts: "install.tar.gz,libs.tar.gz,dylibs.tar.gz,cocoapod.tar.gz,cocoapod_modulemap.tar.gz"
           token: ${{ secrets.GITHUB_TOKEN }}
           body: |
-            - `install.tar.gz`: dev pack including everything for all platforms
-            - `libs.tar.gz`: static lib files for all platforms
-            - `dylibs.tar.gz`: dynamic lib files for all platforms
-            - `cocoapod.tar.gz`: files for cocoapod, see ./libtdjson.podspec
+            - `install.tar.gz`: Dev pack including everything for all platforms
+            - `libs.tar.gz`: Static lib files for all platforms
+            - `dylibs.tar.gz`: Dynamic lib files for all platforms
+            - `cocoapod.tar.gz`: Files for CocoaPods, see ./libtdjson.podspec
+            - `cocoapod_modulemap.tar.gz`: Example module files for CocoaPods
       - run: |
           brew install coreutils
           dir=$(dirname $(grealpath $(which pod)))

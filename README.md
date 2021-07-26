@@ -6,7 +6,7 @@
 
 ## Installation
 
-> CocoaPods
+### CocoaPods
 
 libtdjson is available through [CocoaPods](https://cocoapods.org). To install it, simply add the following line to your Podfile:
 
@@ -22,11 +22,46 @@ Pod::Spec.new do |s|
 end
 ```
 
-> Carthage
+> Use as module
+
+Because this pod **only** provide .dylib files (to prevent module name conflicts and keep it simplest!), if you want to use it as module (e.q. on iOS with swift), you **have to** add some necessary files:
+
+- Download example `headers` and `module.modulemap`
+
+```bash
+curl -SLO https://github.com/up9cloud/ios-libtdjson/releases/download/v0.2.0/cocoapod_include.tar.gz
+mkdir include
+tar xzf cocoapod_include.tar.gz -C include
+
+# Edit files to whatever you want, e.q. change the module name or remove export symbols you don't need
+```
+
+- Add include path and link lib, e.q.
+
+```ruby
+Pod::Spec.new do |s|
+  s.pod_target_xcconfig = {
+    'SWIFT_INCLUDE_PATHS' => '${PODS_TARGET_SRCROOT}/include',
+    'OTHER_LDFLAGS' => '-ltdjson',
+  }
+end
+```
+
+- Use it
+
+```swift
+import libtdjson
+func create() -> Int {
+    return Int(bitPattern: libtdjson.td_json_client_create()!)
+}
+// ... (more usages at ./example/*)
+```
+
+### Carthage
 
 TODO:
 
-> Manually
+### Manually
 
 Download prebuilt files from `Release`, then do whatever you want.
 
