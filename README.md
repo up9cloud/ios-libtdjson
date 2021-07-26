@@ -29,9 +29,9 @@ Because this pod **only** provide .dylib files (to prevent module name conflicts
 - Download example `headers` and `module.modulemap`
 
 ```bash
-curl -SLO https://github.com/up9cloud/ios-libtdjson/releases/download/v0.2.0/cocoapod_include.tar.gz
+curl -SLO https://github.com/up9cloud/ios-libtdjson/releases/download/v0.2.0/cocoapod_modulemap.tar.gz
 mkdir include
-tar xzf cocoapod_include.tar.gz -C include
+tar xzf cocoapod_modulemap.tar.gz -C include
 
 # Edit files to whatever you want, e.q. change the module name or remove export symbols you don't need
 ```
