@@ -4,6 +4,20 @@
 [![License](https://img.shields.io/cocoapods/l/libtdjson.svg?style=flat)](https://cocoapods.org/pods/libtdjson)
 [![Platform](https://img.shields.io/cocoapods/p/libtdjson.svg?style=flat)](https://cocoapods.org/pods/libtdjson)
 
+## Supported architectures
+
+| Platform      | Architecture |     |
+| ------------- | ------------ | --- |
+| iOS           | armv7        | ❌   |
+|               | armv7s       | ❌   |
+|               | arm64        | ✅   |
+| iOS simulator | i386         | ❌   |
+|               | x86_64       | ✅   |
+|               | arm64 (M1)   | ❌   |
+| macOS         | i386         | ❌   |
+|               | x86_64       | ✅   |
+|               | arm64 (M1)   | ❌   |
+
 ## Installation
 
 ### CocoaPods
