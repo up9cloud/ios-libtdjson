@@ -71,19 +71,20 @@ for platform in $platforms; do
 		openssl_install_path="$INSTALL_ROOT_DIR/openssl/${platform}"
 		openssl_crypto_library="${openssl_install_path}/lib/libcrypto.a"
 		openssl_ssl_library="${openssl_install_path}/lib/libssl.a"
-		options="$options -DOPENSSL_FOUND=1"
-		options="$options -DOPENSSL_CRYPTO_LIBRARY=${openssl_crypto_library}"
-		options="$options -DOPENSSL_SSL_LIBRARY=${openssl_ssl_library}"
-		options="$options -DOPENSSL_INCLUDE_DIR=${openssl_install_path}/include"
-		options="$options -DOPENSSL_LIBRARIES=${openssl_crypto_library};${openssl_ssl_library}"
-		options="$options -DCMAKE_BUILD_TYPE=Release"
 
 		build_dir="$BUILD_ROOT_DIR/${platform}"
 		install_dir="$INSTALL_ROOT_DIR/tdjson/${platform}"
 		rm -rf $build_dir $install_dir
 		mkdir -p $build_dir $install_dir
 		cd $build_dir
-		cmake $TD_DIR $options -DCMAKE_INSTALL_PREFIX=$install_dir || exit 1
+		cmake $TD_DIR \
+			-DCMAKE_INSTALL_PREFIX=$install_dir \
+			-DCMAKE_BUILD_TYPE=Release \
+			-DOPENSSL_FOUND=1 \
+			-DOPENSSL_CRYPTO_LIBRARY=${openssl_crypto_library} \
+			-DOPENSSL_SSL_LIBRARY=${openssl_ssl_library} \
+			-DOPENSSL_INCLUDE_DIR=${openssl_install_path}/include \
+			-DOPENSSL_LIBRARIES=${openssl_crypto_library};${openssl_ssl_library} || exit 1
 		cmake --build . --target tdjson || exit 1
 		cmake --build . --target tdjson_static || exit 1
 		cmake --install . || exit 1
@@ -96,10 +97,9 @@ for platform in $platforms; do
 		cp $install_dir/lib/*.a $LIBS_DIR/$platform/lib/
 		cp -r $install_dir/include $LIBS_DIR/$platform/
 	else
-		options="$options -DCMAKE_BUILD_TYPE=MinSizeRel"
-		options="$options -DCMAKE_TOOLCHAIN_FILE=${TD_DIR}/CMake/iOS.cmake"
+		more_options=""
 		if [[ $platform = "watchOS" ]]; then
-			options="$options -DTD_EXPERIMENTAL_WATCH_OS=ON"
+			more_options="$more_options -DTD_EXPERIMENTAL_WATCH_OS=ON"
 		fi
 		simulators="0 1"
 		for simulator in $simulators; do
@@ -121,16 +121,20 @@ for platform in $platforms; do
 			fi
 			openssl_crypto_library="${openssl_install_path}/lib/libcrypto.a"
 			openssl_ssl_library="${openssl_install_path}/lib/libssl.a"
-			options="$options -DOPENSSL_FOUND=1"
-			options="$options -DOPENSSL_CRYPTO_LIBRARY=${openssl_crypto_library}"
-			options="$options -DOPENSSL_SSL_LIBRARY=${openssl_ssl_library}"
-			options="$options -DOPENSSL_INCLUDE_DIR=${openssl_install_path}/include"
-			options="$options -DOPENSSL_LIBRARIES=${openssl_crypto_library};${openssl_ssl_library}"
 
 			rm -rf $build_dir $install_dir
 			mkdir -p $build_dir $install_dir
 			cd $build_dir
-			cmake $TD_DIR $options -DIOS_PLATFORM=${ios_platform} -DCMAKE_INSTALL_PREFIX=$install_dir || exit 1
+			cmake $TD_DIR $more_options \
+				-DIOS_PLATFORM=${ios_platform} \
+				-DCMAKE_BUILD_TYPE=MinSizeRel \
+				-DCMAKE_INSTALL_PREFIX=$install_dir \
+				-DCMAKE_TOOLCHAIN_FILE=${TD_DIR}/CMake/iOS.cmake \
+				-DOPENSSL_FOUND=1 \
+				-DOPENSSL_CRYPTO_LIBRARY=${openssl_crypto_library} \
+				-DOPENSSL_SSL_LIBRARY=${openssl_ssl_library} \
+				-DOPENSSL_INCLUDE_DIR=${openssl_install_path}/include \
+				-DOPENSSL_LIBRARIES=${openssl_crypto_library};${openssl_ssl_library} || exit 1
 			cmake --build . --target tdjson || exit 1
 			cmake --build . --target tdjson_static || exit 1
 			cmake --install . || exit 1
