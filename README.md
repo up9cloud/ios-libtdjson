@@ -36,7 +36,7 @@ Pod::Spec.new do |s|
 end
 ```
 
-> Use as module
+### Use it as module (iOS, swift)
 
 Because this pod **only** provide .dylib files (to prevent module name conflicts and keep it simplest!), if you want to use it as module (e.q. on iOS with swift), you **have to** add some necessary files:
 
