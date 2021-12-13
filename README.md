@@ -23,7 +23,7 @@
 |               | arm64 (M1)   | ❌   |
 | macOS         | i386         | ❌   |
 |               | x86_64       | ✅   |
-|               | arm64 (M1)   | ❌   |
+|               | arm64 (M1)   | ✅   |
 
 ## Installation
 

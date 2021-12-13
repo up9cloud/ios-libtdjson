@@ -44,10 +44,6 @@ if [ ! -d "$TD_DIR" ]; then
 	# git checkout tags/v1.7.9
 	git checkout 7d41d9eaa58a6e0927806283252dc9e74eda5512
 	cd ..
-
-	# 64 bit only, to reduce lib size, see https://github.com/tdlib/td/blob/master/CMake/iOS.cmake
-	sed -i '' "s/armv7;armv7s;arm64/arm64/" $TD_DIR/CMake/iOS.cmake
-	sed -i '' "s/i386;x86_64/x86_64/" $TD_DIR/CMake/iOS.cmake
 fi
 if [ ! -d "$INSTALL_ROOT_DIR/openssl" ]; then
 	download_prebuilt_openssl $INSTALL_ROOT_DIR
@@ -82,6 +78,7 @@ for platform in $platforms; do
 		cmake $TD_DIR \
 			-DCMAKE_INSTALL_PREFIX=$install_dir \
 			-DCMAKE_BUILD_TYPE=Release \
+			-DCMAKE_OSX_ARCHITECTURES='x86_64;arm64' \
 			-DOPENSSL_FOUND=1 \
 			-DOPENSSL_CRYPTO_LIBRARY=${openssl_crypto_library} \
 			-DOPENSSL_SSL_LIBRARY=${openssl_ssl_library} \
@@ -113,8 +110,17 @@ for platform in $platforms; do
 				build_dir="${build_dir}-simulator"
 				install_dir="${install_dir}-simulator"
 				ios_platform="SIMULATOR"
+				# 64 bit only, to reduce lib size, see https://github.com/tdlib/td/blob/master/CMake/iOS.cmake
+				# Because we're using lipo to combind simulator and real device libs, we can only choose one arm64 for that lib.
+				# Obeviously, We should choose it for real device.
+				if [[ $platform = "iOS" ]]; then
+					more_options="$more_options -DIOS_ARCH=x86_64"
+				fi
 			else
 				ios_platform="OS"
+				if [[ $platform = "iOS" ]]; then
+					more_options="$more_options -DIOS_ARCH=arm64"
+				fi
 			fi
 			if [[ $platform = "watchOS" ]]; then
 				ios_platform="WATCH${ios_platform}"
