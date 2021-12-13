@@ -40,10 +40,12 @@ if [ ! -d "$TD_DIR" ]; then
 	cd $__DIR__
 	git clone https://github.com/tdlib/td.git
 	cd td
-	git checkout tags/v1.7.0
+	# https://github.com/tdlib/td/blame/master/CMakeLists.txt
+	# git checkout tags/v1.7.9
+	git checkout 7d41d9eaa58a6e0927806283252dc9e74eda5512
 	cd ..
 
-	# 64 bit only, to reduce lib size
+	# 64 bit only, to reduce lib size, see https://github.com/tdlib/td/blob/master/CMake/iOS.cmake
 	sed -i '' "s/armv7;armv7s;arm64/arm64/" $TD_DIR/CMake/iOS.cmake
 	sed -i '' "s/i386;x86_64/x86_64/" $TD_DIR/CMake/iOS.cmake
 fi
@@ -84,7 +86,7 @@ for platform in $platforms; do
 			-DOPENSSL_CRYPTO_LIBRARY=${openssl_crypto_library} \
 			-DOPENSSL_SSL_LIBRARY=${openssl_ssl_library} \
 			-DOPENSSL_INCLUDE_DIR=${openssl_install_path}/include \
-			-DOPENSSL_LIBRARIES=${openssl_crypto_library};${openssl_ssl_library} || exit 1
+			-DOPENSSL_LIBRARIES="${openssl_crypto_library};${openssl_ssl_library}" || exit 1
 		cmake --build . --target tdjson || exit 1
 		cmake --build . --target tdjson_static || exit 1
 		cmake --install . || exit 1
@@ -134,7 +136,7 @@ for platform in $platforms; do
 				-DOPENSSL_CRYPTO_LIBRARY=${openssl_crypto_library} \
 				-DOPENSSL_SSL_LIBRARY=${openssl_ssl_library} \
 				-DOPENSSL_INCLUDE_DIR=${openssl_install_path}/include \
-				-DOPENSSL_LIBRARIES=${openssl_crypto_library};${openssl_ssl_library} || exit 1
+				-DOPENSSL_LIBRARIES="${openssl_crypto_library};${openssl_ssl_library}" || exit 1
 			cmake --build . --target tdjson || exit 1
 			cmake --build . --target tdjson_static || exit 1
 			cmake --install . || exit 1

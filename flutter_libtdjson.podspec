@@ -7,7 +7,7 @@
 #
 
 Pod::Spec.new do |s|
-  _VERSION = ENV['GITHUB_REF'].start_with?("refs/tags") ? ENV['GITHUB_REF'].sub(/^refs\/tags\/v/, '') : '0.1.0'
+  _VERSION = ENV['GITHUB_REF']&.start_with?("refs/tags") ? ENV['GITHUB_REF'].sub(/^refs\/tags\/v/, '') : '0.1.0'
 
   s.name             = 'flutter_libtdjson'
   s.version          = _VERSION

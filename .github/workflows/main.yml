@@ -5,6 +5,7 @@ on:
 
 jobs:
   build:
+    # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v1
@@ -41,6 +42,8 @@ jobs:
             - `cocoapod.tar.gz`: Files for CocoaPods, see ./libtdjson.podspec
             - `cocoapod_modulemap.tar.gz`: Example module files for CocoaPods
       # CocoaPods lint don't allow .dylib, need to fix it manually
+      # see https://github.com/CocoaPods/CocoaPods
+      # - https://github.com/CocoaPods/CocoaPods/blob/master/lib/cocoapods/validator.rb
       - name: fix pod spec lint 
         run: |
           brew install coreutils

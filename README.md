@@ -4,6 +4,13 @@
 [![License](https://img.shields.io/cocoapods/l/libtdjson.svg?style=flat)](https://cocoapods.org/pods/libtdjson)
 [![Platform](https://img.shields.io/cocoapods/p/libtdjson.svg?style=flat)](https://cocoapods.org/pods/libtdjson)
 
+## Lib versions
+
+| pod   | tdlib |
+| ----- | ----- |
+| 0.2.1 | [1.7.9](https://github.com/tdlib/td/tree/7d41d9eaa58a6e0927806283252dc9e74eda5512) |
+| 0.2.0 | [1.7.0](https://github.com/tdlib/td/tree/v1.7.0) |
+
 ## Supported architectures
 
 | Platform      | Architecture |     |
@@ -97,3 +104,10 @@ install_name_tool -id @rpath/libtdjson.dylib libtdjson.dylib
 
 - [ ] Support [Carthage](https://github.com/Carthage/Carthage/blob/master/Documentation/Artifacts.md#cartfile)
 - [ ] Support M1 (Apple Silicon), see [this](https://github.com/tdlib/td/pull/1620)
+
+## Dev memo
+
+> Update version
+
+- `./README.md` update the part of Lib versions
+- `./build.sh` modify the id for git checkout
