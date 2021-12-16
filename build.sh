@@ -3,18 +3,17 @@
 __DIR__="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 
 # https://github.com/beeware/Python-Apple-support/releases/download/3.9-b3/Python-3.9-$platform-support.b3.tar.gz will Cause error: ...libOpenSSL.a(bss_mem.o), building for iOS, but linking in object file (.../libOpenSSL.a(bss_mem.o)) built for macOS, for architecture arm64
-# https://github.com/krzyzanowskim/OpenSSL/archive/refs/tags/1.1.1100.tar.gz:
 download_prebuilt_openssl() {
 	local install_root_dir="$1"
-	curl -SL https://github.com/krzyzanowskim/OpenSSL/archive/refs/tags/1.1.1100.tar.gz -o OpenSSL.tar.gz
+	curl -SL https://github.com/krzyzanowskim/OpenSSL/archive/refs/tags/1.1.1200.tar.gz -o OpenSSL.tar.gz
 	tar xzf OpenSSL.tar.gz \
-		OpenSSL-1.1.1100/iphoneos \
-		OpenSSL-1.1.1100/iphonesimulator \
-		OpenSSL-1.1.1100/macosx
+		OpenSSL-1.1.1200/iphoneos \
+		OpenSSL-1.1.1200/iphonesimulator \
+		OpenSSL-1.1.1200/macosx
 
 	mkdir -p $install_root_dir
 	# standardize name
-	mv OpenSSL-1.1.1100 $install_root_dir/openssl
+	mv OpenSSL-1.1.1200 $install_root_dir/openssl
 	mv $install_root_dir/openssl/iphoneos $install_root_dir/openssl/iOS
 	mv $install_root_dir/openssl/iphonesimulator $install_root_dir/openssl/iOS-simulator
 	mv $install_root_dir/openssl/macosx $install_root_dir/openssl/macOS
@@ -44,6 +43,8 @@ if [ ! -d "$TD_DIR" ]; then
 	# git checkout tags/v1.7.9
 	git checkout 7d41d9eaa58a6e0927806283252dc9e74eda5512
 	cd ..
+
+	curl -sSL -O https://raw.githubusercontent.com/up9cloud/td/master/CMake/iOS.cmake
 fi
 if [ ! -d "$INSTALL_ROOT_DIR/openssl" ]; then
 	download_prebuilt_openssl $INSTALL_ROOT_DIR
@@ -97,9 +98,6 @@ for platform in $platforms; do
 		cp -r $install_dir/include $LIBS_DIR/$platform/
 	else
 		more_options=""
-		if [[ $platform = "watchOS" ]]; then
-			more_options="$more_options -DTD_EXPERIMENTAL_WATCH_OS=ON"
-		fi
 		simulators="0 1"
 		for simulator in $simulators; do
 			openssl_install_path="$INSTALL_ROOT_DIR/openssl/${platform}"
@@ -110,9 +108,9 @@ for platform in $platforms; do
 				build_dir="${build_dir}-simulator"
 				install_dir="${install_dir}-simulator"
 				ios_platform="SIMULATOR"
-				# 64 bit only, to reduce lib size, see https://github.com/tdlib/td/blob/master/CMake/iOS.cmake
-				# Because we're using lipo to combind simulator and real device libs, we can only choose one arm64 for that lib.
-				# Obeviously, We should choose it for real device.
+				# - 64 bit only, to reduce lib size, see https://github.com/tdlib/td/blob/master/CMake/iOS.cmake
+				# - No arm for simulator, because we're using lipo to combind simulator and real device libs, we can only choose one arm64 for that lib. Obeviously, We should choose it for real device.
+				# - IOS_ARCH, Because https://github.com/tdlib/td/blob/master/CMake/iOS.cmake won't let us to override IOS_ARCH, so I did a PR for it
 				if [[ $platform = "iOS" ]]; then
 					more_options="$more_options -DIOS_ARCH=x86_64"
 				fi
@@ -137,7 +135,7 @@ for platform in $platforms; do
 				-DIOS_PLATFORM=${ios_platform} \
 				-DCMAKE_BUILD_TYPE=MinSizeRel \
 				-DCMAKE_INSTALL_PREFIX=$install_dir \
-				-DCMAKE_TOOLCHAIN_FILE=${TD_DIR}/CMake/iOS.cmake \
+				-DCMAKE_TOOLCHAIN_FILE=${TD_DIR}/../iOS.cmake \
 				-DOPENSSL_FOUND=1 \
 				-DOPENSSL_CRYPTO_LIBRARY=${openssl_crypto_library} \
 				-DOPENSSL_SSL_LIBRARY=${openssl_ssl_library} \

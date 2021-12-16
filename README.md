@@ -103,7 +103,7 @@ install_name_tool -id @rpath/libtdjson.dylib libtdjson.dylib
 ## TODO
 
 - [ ] Support [Carthage](https://github.com/Carthage/Carthage/blob/master/Documentation/Artifacts.md#cartfile)
-- [ ] Support M1 (Apple Silicon), see [this](https://github.com/tdlib/td/pull/1620)
+- [ ] Support M1 (Apple Silicon) - migrate to XCFramework, see [PR 1620](https://github.com/tdlib/td/pull/1620)
 
 ## Dev memo
 
