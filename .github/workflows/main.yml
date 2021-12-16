@@ -25,11 +25,11 @@ jobs:
       - name: cocoapod_modulemap.tar.gz
         run: |
           cd libs/iOS/include
-          cp ../../module.modulemap .
+          cp ../../../module.modulemap .
           tar -czvf cocoapod_modulemap.tar.gz module.modulemap td/telegram/td_json_client.h td/telegram/tdjson_export.h
-          mv cocoapod_modulemap.tar.gz ../..
+          mv cocoapod_modulemap.tar.gz ../../..
           rm module.modulemap
-          cd ../..
+          cd ../../..
       - uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
