@@ -64,7 +64,7 @@ jobs:
           pod trunk push --allow-warnings libtdjson.podspec
           pod trunk push --allow-warnings flutter_libtdjson.podspec
         env:
-          COCOAPODS_TRUNK_TOKEN: ${secrets.COCOAPODS_TRUNK_TOKEN}
+          COCOAPODS_TRUNK_TOKEN: ${{secrets.COCOAPODS_TRUNK_TOKEN}}
   notify:
     if: cancelled() == false
     needs: build

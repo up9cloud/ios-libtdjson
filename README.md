@@ -114,3 +114,11 @@ install_name_tool -id @rpath/libtdjson.dylib libtdjson.dylib
 - Update the `Lib versions` part in `./README.md`
 - Commit and add tag
 - Push
+
+> Manually do `pod trunk push` if CI build failed...
+
+```bash
+export GITHUB_REF=refs/tags/v<the version>
+pod trunk push --allow-warnings libtdjson.podspec
+pod trunk push --allow-warnings flutter_libtdjson.podspec
+```
