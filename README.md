@@ -8,6 +8,7 @@
 
 | pod   | tdlib |
 | ----- | ----- |
+| 0.2.2 | [1.8.1](https://github.com/tdlib/td/tree/92c2a9c4e521df720abeaa9872e1c2b797d5c93f) |
 | 0.2.1 | [1.7.9](https://github.com/tdlib/td/tree/7d41d9eaa58a6e0927806283252dc9e74eda5512) |
 | 0.2.0 | [1.7.0](https://github.com/tdlib/td/tree/v1.7.0) |
 
@@ -50,7 +51,7 @@ Because this pod **only** provide .dylib files (to prevent module name conflicts
 - Download example `headers` and `module.modulemap`
 
 ```bash
-curl -SLO https://github.com/up9cloud/ios-libtdjson/releases/download/v0.2.0/cocoapod_modulemap.tar.gz
+curl -SLO https://github.com/up9cloud/ios-libtdjson/releases/download/v0.2.2/cocoapod_modulemap.tar.gz
 mkdir include
 tar xzf cocoapod_modulemap.tar.gz -C include
 
@@ -107,7 +108,9 @@ install_name_tool -id @rpath/libtdjson.dylib libtdjson.dylib
 
 ## Dev memo
 
-> Update version
+> Bump the TDLib version
 
-- `./README.md` update the part of Lib versions
-- `./build.sh` modify the id for git checkout
+- Modify the id for git checkout in `./build.sh`
+- Update the `Lib versions` part in `./README.md`
+- Commit and add tag
+- Push
