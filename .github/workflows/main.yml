@@ -17,11 +17,10 @@ jobs:
         run: |
           brew install coreutils
           dir=$(dirname $(grealpath $(which pod)))
-          
-          if [ "$v" = "`echo -e "$v\n10.999" | sort -V | head -n1`" ]; then
-            dir=$(grealpath $dir/../gems)
-          else
+          if [ `uname -m` = "arm64" ]; then
             dir=$(grealpath $dir/../libexec/gems)
+          else
+            dir=$(grealpath $dir/../gems)
           fi
           f=$(grep --include=\*.rb -rnwl $dir -e "unless lib_name.end_with?('.a')")
           sed -i '' "s/unless lib_name.end_with?('.a') && lib_name.start_with?('lib')/unless (lib_name.end_with?('.a') || lib_name.end_with?('.dylib')) \&\& File.basename(lib_name).start_with?('lib')/g" $f
