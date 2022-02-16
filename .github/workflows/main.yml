@@ -8,6 +8,25 @@ jobs:
     # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
     runs-on: macos-latest
     steps:
+      # Building step need much more time, so We do this first to safe time, just in case what if this failed
+      # CocoaPods lint don't allow .dylib, need to fix it manually
+      # see https://github.com/CocoaPods/CocoaPods
+      # - https://github.com/CocoaPods/CocoaPods/blob/master/lib/cocoapods/validator.rb
+      # The brew path is different between M1 and Intel (see https://github.com/Homebrew/install/blob/master/install.sh#L112)
+      - name: fix pod spec lint 
+        run: |
+          brew install coreutils
+          dir=$(dirname $(grealpath $(which pod)))
+          
+          if [ "$v" = "`echo -e "$v\n10.999" | sort -V | head -n1`" ]; then
+            dir=$(grealpath $dir/../gems)
+          else
+            dir=$(grealpath $dir/../libexec/gems)
+          fi
+          f=$(grep --include=\*.rb -rnwl $dir -e "unless lib_name.end_with?('.a')")
+          sed -i '' "s/unless lib_name.end_with?('.a') && lib_name.start_with?('lib')/unless (lib_name.end_with?('.a') || lib_name.end_with?('.dylib')) \&\& File.basename(lib_name).start_with?('lib')/g" $f
+          f=$(grep --include=\*.rb -rnwl $dir -e "validate_nonempty_patterns(attr_name, :error)")
+          sed -i '' "s/validate_nonempty_patterns(attr_name, :error)/(attr_name.to_s == 'vendored_libraries') || validate_nonempty_patterns(attr_name, :error)/g" $f
       - uses: actions/checkout@v1
       - run: ./build.sh
       - run: |
@@ -41,23 +60,6 @@ jobs:
             - `dylibs.tar.gz`: Dynamic lib files for all platforms
             - `cocoapod.tar.gz`: Files for CocoaPods, see ./libtdjson.podspec
             - `cocoapod_modulemap.tar.gz`: Example module files for CocoaPods
-      # CocoaPods lint don't allow .dylib, need to fix it manually
-      # see https://github.com/CocoaPods/CocoaPods
-      # - https://github.com/CocoaPods/CocoaPods/blob/master/lib/cocoapods/validator.rb
-      - name: fix pod spec lint 
-        run: |
-          brew install coreutils
-          dir=$(dirname $(grealpath $(which pod)))
-          v=$(sw_vers -productVersion)
-          if [ "$v" = "`echo -e "$v\n10.999" | sort -V | head -n1`" ]; then
-            dir=$(grealpath $dir/../gems)
-          else
-            dir=$(grealpath $dir/../libexec/gems)
-          fi
-          f=$(grep --include=\*.rb -rnwl $dir -e "unless lib_name.end_with?('.a')")
-          sed -i '' "s/unless lib_name.end_with?('.a') && lib_name.start_with?('lib')/unless (lib_name.end_with?('.a') || lib_name.end_with?('.dylib')) \&\& File.basename(lib_name).start_with?('lib')/g" $f
-          f=$(grep --include=\*.rb -rnwl $dir -e "validate_nonempty_patterns(attr_name, :error)")
-          sed -i '' "s/validate_nonempty_patterns(attr_name, :error)/(attr_name.to_s == 'vendored_libraries') || validate_nonempty_patterns(attr_name, :error)/g" $f
       - name: pod trunk push
         run: |
           pod trunk push --allow-warnings libtdjson.podspec
