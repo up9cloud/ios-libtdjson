@@ -17,9 +17,9 @@ download_prebuilt_openssl() {
 	rm $f_name
 
 	# standardize the folder name
-	mv openssl/macosx openssl/macOS
-	mv openssl/iphoneos openssl/iOS
-	mv openssl/iphonesimulator openssl/iOS-simulator
+	mv $install_root_dir/openssl/macosx $install_root_dir/openssl/macOS
+	mv $install_root_dir/openssl/iphoneos $install_root_dir/openssl/iOS
+	mv $install_root_dir/openssl/iphonesimulator $install_root_dir/openssl/iOS-simulator
 }
 
 BUILD_ROOT_DIR="$__DIR__/build"
