@@ -8,6 +8,7 @@
 
 | pod   | tdlib |
 | ----- | ----- |
+| 0.3.0 | [1.8.7](https://github.com/tdlib/td/tree/a7a17b34b3c8fd3f7f6295f152746beb68f34d83) |
 | 0.2.2 | [1.8.1](https://github.com/tdlib/td/tree/92c2a9c4e521df720abeaa9872e1c2b797d5c93f) |
 | 0.2.1 | [1.7.9](https://github.com/tdlib/td/tree/7d41d9eaa58a6e0927806283252dc9e74eda5512) |
 | 0.2.0 | [1.7.0](https://github.com/tdlib/td/tree/v1.7.0) |
@@ -21,7 +22,7 @@
 |               | arm64        | ✅   |
 | iOS simulator | i386         | ❌   |
 |               | x86_64       | ✅   |
-|               | arm64 (M1)   | ❌   |
+|               | arm64 (M1)   | ✅   |
 | macOS         | i386         | ❌   |
 |               | x86_64       | ✅   |
 |               | arm64 (M1)   | ✅   |
@@ -104,21 +105,22 @@ install_name_tool -id @rpath/libtdjson.dylib libtdjson.dylib
 ## TODO
 
 - [ ] Support [Carthage](https://github.com/Carthage/Carthage/blob/master/Documentation/Artifacts.md#cartfile)
-- [ ] Support M1 (Apple Silicon) - migrate to XCFramework, see [PR 1620](https://github.com/tdlib/td/pull/1620)
+- [x] Support M1 (Apple Silicon) - migrate to XCFramework, see [PR 1620](https://github.com/tdlib/td/pull/1620)
 
 ## Dev memo
 
 > Bump the TDLib version
 
-- Modify the id for git checkout in `./build.sh`
+- Modify the commit id for tdlib in `./build.sh`
 - Update the `Lib versions` part in `./README.md`
-- Commit and add tag
+- Commit and add tag `git tag vx.x.x`
 - Push
+- Wait for CI build task
 
 > Manually do `pod trunk push` if CI build failed...
 
 ```bash
-export GITHUB_REF=refs/tags/v<the version>
+export GITHUB_REF=refs/tags/<the version>
 pod trunk push --allow-warnings libtdjson.podspec
 pod trunk push --allow-warnings flutter_libtdjson.podspec
 ```

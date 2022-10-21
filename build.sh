@@ -1,37 +1,34 @@
 #!/bin/bash -e
 
+# See https://github.com/tdlib/td/blob/master/example/ios/build.sh
+
 __DIR__="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 
 # https://github.com/beeware/Python-Apple-support/releases/download/3.9-b3/Python-3.9-$platform-support.b3.tar.gz will Cause error: ...libOpenSSL.a(bss_mem.o), building for iOS, but linking in object file (.../libOpenSSL.a(bss_mem.o)) built for macOS, for architecture arm64
 download_prebuilt_openssl() {
 	local install_root_dir="$1"
-	local v_tag=1.1.1300
-	curl -SL https://github.com/krzyzanowskim/OpenSSL/archive/refs/tags/${v_tag}.tar.gz -o OpenSSL.tar.gz
-	tar xzf OpenSSL.tar.gz \
-		OpenSSL-${v_tag}/iphoneos \
-		OpenSSL-${v_tag}/iphonesimulator \
-		OpenSSL-${v_tag}/macosx
-
+	local v_tag=1.1.1700
+	local f_name=OpenSSL.tar.gz
+	curl -SL https://github.com/krzyzanowskim/OpenSSL/archive/refs/tags/${v_tag}.tar.gz -o $f_name
+	tar xzf $f_name
+	# The output folder name should be OpenSSL-${v_tag}
 	mkdir -p $install_root_dir
-	# standardize name
 	mv OpenSSL-${v_tag} $install_root_dir/openssl
-	mv $install_root_dir/openssl/iphoneos $install_root_dir/openssl/iOS
-	mv $install_root_dir/openssl/iphonesimulator $install_root_dir/openssl/iOS-simulator
-	mv $install_root_dir/openssl/macosx $install_root_dir/openssl/macOS
-	rm OpenSSL.tar.gz
+	rm $f_name
+
+	# standardize the folder name
+	mv openssl/macosx openssl/macOS
+	mv openssl/iphoneos openssl/iOS
+	mv openssl/iphonesimulator openssl/iOS-simulator
 }
 
 BUILD_ROOT_DIR="$__DIR__/build"
 INSTALL_ROOT_DIR="$__DIR__/install"
-LIBS_DIR="$__DIR__/libs"
-DYLIBS_DIR="$__DIR__/dylibs"
 TD_DIR="$__DIR__/td"
 
 # cleanup all
 # rm -fr $BUILD_ROOT_DIR
 # rm -fr $INSTALL_ROOT_DIR
-# rm -fr $LIBS_DIR
-# rm -fr $DYLIBS_DIR
 # rm -fr $TD_DIR
 
 # prepare
@@ -45,15 +42,15 @@ if [ ! -d "$TD_DIR" ]; then
 	# - Check the line of `project(TDLib VERSION...
 	# - Click left commit link
 	# - Copy and paste the commit hash, e.q. git checkout <hash>
-	# git checkout tags/v1.8.1
-	git checkout 92c2a9c4e521df720abeaa9872e1c2b797d5c93f
+	# git checkout tags/v1.8.7
+	git checkout a7a17b34b3c8fd3f7f6295f152746beb68f34d83
 	cd ..
 fi
 if [ ! -d "$INSTALL_ROOT_DIR/openssl" ]; then
 	download_prebuilt_openssl $INSTALL_ROOT_DIR
 fi
 
-# build, https://github.com/tdlib/td/tree/master/example/ios
+# build, see https://github.com/tdlib/td/tree/master/example/ios
 if [ -z "$1" ]; then
 	# platforms="macOS iOS watchOS tvOS"
 	platforms="macOS iOS"
@@ -76,8 +73,11 @@ for platform in $platforms; do
 
 		build_dir="$BUILD_ROOT_DIR/${platform}"
 		install_dir="$INSTALL_ROOT_DIR/tdjson/${platform}"
-		rm -rf $build_dir $install_dir
-		mkdir -p $build_dir $install_dir
+		install_dylib_dir="$INSTALL_ROOT_DIR/libtdjson/$platform"
+
+		rm -rf $build_dir $install_dir $install_dylib_dir
+		mkdir -p $build_dir $install_dir $install_dylib_dir
+
 		cd $build_dir
 		cmake $TD_DIR \
 			-DCMAKE_INSTALL_PREFIX=$install_dir \
@@ -92,13 +92,8 @@ for platform in $platforms; do
 		cmake --build . --target tdjson_static || exit 1
 		cmake --install . || exit 1
 
-		mkdir -p $DYLIBS_DIR/$platform
-		cp $install_dir/lib/libtdjson.dylib $DYLIBS_DIR/$platform/libtdjson.dylib
-		install_name_tool -id @rpath/libtdjson.dylib $DYLIBS_DIR/$platform/libtdjson.dylib
-
-		mkdir -p $LIBS_DIR/$platform/lib
-		cp $install_dir/lib/*.a $LIBS_DIR/$platform/lib/
-		cp -r $install_dir/include $LIBS_DIR/$platform/
+		cp $install_dir/lib/libtdjson.dylib "$install_dylib_dir/libtdjson.dylib"
+		install_name_tool -id @rpath/libtdjson.dylib "$install_dylib_dir/libtdjson.dylib"
 	else
 		more_options=""
 		simulators="0 1"
@@ -106,15 +101,16 @@ for platform in $platforms; do
 			openssl_install_path="$INSTALL_ROOT_DIR/openssl/${platform}"
 			build_dir="$BUILD_ROOT_DIR/${platform}"
 			install_dir="$INSTALL_ROOT_DIR/tdjson/${platform}"
+			install_dylib_dir="$INSTALL_ROOT_DIR/libtdjson/$platform"
 			if [[ $simulator = "1" ]]; then
 				openssl_install_path="${openssl_install_path}-simulator"
 				build_dir="${build_dir}-simulator"
 				install_dir="${install_dir}-simulator"
+				install_dylib_dir="${install_dylib_dir}-simulator"
 				ios_platform="SIMULATOR"
 				# - 64 bit only, to reduce lib size, see https://github.com/tdlib/td/blob/master/CMake/iOS.cmake
-				# - No arm for simulator, because we're using lipo to combind simulator and real device libs, we can only choose one arm64 for that lib. Obeviously, We should choose it for real device.
 				if [[ $platform = "iOS" ]]; then
-					more_options="$more_options -DIOS_ARCH=x86_64"
+					more_options="$more_options -DIOS_ARCH=x86_64;arm64"
 				fi
 			else
 				ios_platform="OS"
@@ -130,8 +126,9 @@ for platform in $platforms; do
 			openssl_crypto_library="${openssl_install_path}/lib/libcrypto.a"
 			openssl_ssl_library="${openssl_install_path}/lib/libssl.a"
 
-			rm -rf $build_dir $install_dir
-			mkdir -p $build_dir $install_dir
+			rm -rf $build_dir $install_dir $install_dylib_dir
+			mkdir -p $build_dir $install_dir $install_dylib_dir
+
 			cd $build_dir
 			cmake $TD_DIR $more_options \
 				-DIOS_PLATFORM=${ios_platform} \
@@ -146,24 +143,23 @@ for platform in $platforms; do
 			cmake --build . --target tdjson || exit 1
 			cmake --build . --target tdjson_static || exit 1
 			cmake --install . || exit 1
-		done
 
-		# dynamic lib
-		lib="$INSTALL_ROOT_DIR/tdjson/${platform}/lib/libtdjson.dylib"
-		lib_simulator="$INSTALL_ROOT_DIR/tdjson/${platform}-simulator/lib/libtdjson.dylib"
-		mkdir -p $DYLIBS_DIR/$platform
-		lipo -create $lib $lib_simulator -o $DYLIBS_DIR/$platform/libtdjson.dylib
-		install_name_tool -id @rpath/libtdjson.dylib $DYLIBS_DIR/$platform/libtdjson.dylib
-
-		# static lib
-		mkdir -p $LIBS_DIR/$platform/lib
-		for file in $INSTALL_ROOT_DIR/tdjson/${platform}/lib/*.a; do
-			f=$(basename $file)
-			lib="$INSTALL_ROOT_DIR/tdjson/${platform}/lib/$f"
-			lib_simulator="$INSTALL_ROOT_DIR/tdjson/${platform}-simulator/lib/$f"
-			lipo -create $lib $lib_simulator -o $LIBS_DIR/$platform/lib/$f
+			cp $install_dir/lib/libtdjson.dylib "$install_dylib_dir/libtdjson.dylib"
+			install_name_tool -id @rpath/libtdjson.dylib "$install_dylib_dir/libtdjson.dylib"
 		done
-		rm -fr $LIBS_DIR/$platform/include
-		cp -r $install_dir/include $LIBS_DIR/$platform/
 	fi
 done
+
+# What if met the error: Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionSentinelHostApplications for extension Xcode.DebuggerFoundation.AppExtensionHosts.watchOS of plug-in com.apple.dt.IDEWatchSupportCore...
+# see:
+# - https://apple.stackexchange.com/questions/438785/xcode-error-when-launching-terminal
+# - https://stackoverflow.com/questions/71320584/flutter-build-ios-got-error-requested-but-did-not-find-extension-point-with-ide
+xcodebuild_more_options=""
+for dylib in $INSTALL_ROOT_DIR/libtdjson/*/libtdjson.dylib; do
+	abs_path="$(grealpath "${dylib}")"
+	xcodebuild_more_options="$xcodebuild_more_options -library $abs_path"
+done
+
+xcodebuild -create-xcframework \
+	${xcodebuild_more_options} \
+	-output "libtdjson.xcframework"

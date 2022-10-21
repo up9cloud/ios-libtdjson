@@ -8,55 +8,32 @@ jobs:
     # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
     runs-on: macos-latest
     steps:
-      # Building step need much more time, so We do this first to safe time, just in case what if this failed
-      # CocoaPods lint don't allow .dylib, need to fix it manually
-      # see https://github.com/CocoaPods/CocoaPods
-      # - https://github.com/CocoaPods/CocoaPods/blob/master/lib/cocoapods/validator.rb
-      # The brew path is different between M1 and Intel (see https://github.com/Homebrew/install/blob/master/install.sh#L112)
-      - name: fix pod spec lint 
-        run: |
-          brew install coreutils
-          dir=$(dirname $(grealpath $(which pod)))
-          if [ `uname -m` = "arm64" ]; then
-            dir=$(grealpath $dir/../libexec/gems)
-          else
-            dir=$(grealpath $dir/../gems)
-          fi
-          f=$(grep --include=\*.rb -rnwl $dir -e "unless lib_name.end_with?('.a')")
-          sed -i '' "s/unless lib_name.end_with?('.a') && lib_name.start_with?('lib')/unless (lib_name.end_with?('.a') || lib_name.end_with?('.dylib')) \&\& File.basename(lib_name).start_with?('lib')/g" $f
-          f=$(grep --include=\*.rb -rnwl $dir -e "validate_nonempty_patterns(attr_name, :error)")
-          sed -i '' "s/validate_nonempty_patterns(attr_name, :error)/(attr_name.to_s == 'vendored_libraries') || validate_nonempty_patterns(attr_name, :error)/g" $f
       - uses: actions/checkout@v1
       - run: ./build.sh
       - run: |
           tar -czvf install.tar.gz install
-          tar -czvf libs.tar.gz libs
-          tar -czvf dylibs.tar.gz dylibs
+          tar -czvf libtdjson.xcframework.tar.gz libtdjson.xcframework
       # CocoaPods will extract archive file and install `nothing` to pod if the folder depth > 2 (bug?)
       # and it will also move single folder to root (no option to turn off, https://github.com/CocoaPods/CocoaPods/pull/728), so can't just archive ./dylibs
-      - run: |
-          cd dylibs
-          cp ../LICENSE .
-          tar -czvf cocoapod.tar.gz iOS/libtdjson.dylib macOS/libtdjson.dylib LICENSE
-          mv cocoapod.tar.gz ..
-          cd ..
+      - name: libtdjson.xcframework.tar.gz
+        run: |
+          tar -czvf libtdjson.xcframework.tar.gz LICENSE libtdjson.xcframework
       - name: cocoapod_modulemap.tar.gz
         run: |
-          cd libs/iOS/include
+          cd install/tdjson/iOS/include
           cp ../../../module.modulemap .
           tar -czvf cocoapod_modulemap.tar.gz module.modulemap td/telegram/td_json_client.h td/telegram/tdjson_export.h
-          mv cocoapod_modulemap.tar.gz ../../..
           rm module.modulemap
+          mv cocoapod_modulemap.tar.gz ../../..
           cd ../../..
       - uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: "install.tar.gz,libs.tar.gz,dylibs.tar.gz,cocoapod.tar.gz,cocoapod_modulemap.tar.gz"
+          artifacts: "install.tar.gz,libtdjson.xcframework.tar.gz,cocoapod.tar.gz,cocoapod_modulemap.tar.gz"
           token: ${{ secrets.GITHUB_TOKEN }}
           body: |
             - `install.tar.gz`: Dev pack including everything for all platforms
-            - `libs.tar.gz`: Static lib files for all platforms
-            - `dylibs.tar.gz`: Dynamic lib files for all platforms
+            - `libtdjson.xcframework.tar.gz`: Dynamic libraries for all platforms
             - `cocoapod.tar.gz`: Files for CocoaPods, see ./libtdjson.podspec
             - `cocoapod_modulemap.tar.gz`: Example module files for CocoaPods
       - name: pod trunk push
