@@ -33,6 +33,7 @@ TD_DIR="$__DIR__/td"
 
 # prepare
 brew install gperf cmake coreutils
+brew ls
 if [ ! -d "$TD_DIR" ]; then
 	cd $__DIR__
 	git clone https://github.com/tdlib/td.git
