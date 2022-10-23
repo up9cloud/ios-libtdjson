@@ -163,4 +163,4 @@ done
 
 xcodebuild -create-xcframework \
 	${xcodebuild_more_options} \
-	-output "libtdjson.xcframework"
+	-output "$__DIR__/libtdjson.xcframework"

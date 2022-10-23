@@ -28,7 +28,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           body: |
             - `install.tar.gz`: Dev pack including everything for all platforms
-            - `libtdjson.xcframework.tar.gz`: Dynamic libraries for all platforms
+            - `libtdjson.xcframework.tar.gz`: Dynamic libraries packed as xcframework for all platforms
             - `cocoapod_modulemap.tar.gz`: Example module files for CocoaPods
       - name: pod trunk push
         run: |
