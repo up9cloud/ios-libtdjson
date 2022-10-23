@@ -15,12 +15,12 @@ jobs:
           tar -czvf libtdjson.xcframework.tar.gz libtdjson.xcframework
       - name: cocoapod_modulemap.tar.gz
         run: |
+          cp module.modulemap install/tdjson/iOS/include/
           cd install/tdjson/iOS/include
-          cp ../../../module.modulemap .
           tar -czvf cocoapod_modulemap.tar.gz module.modulemap td/telegram/td_json_client.h td/telegram/tdjson_export.h
           rm module.modulemap
-          mv cocoapod_modulemap.tar.gz ../../..
-          cd ../../..
+          cd ../../../..
+          mv install/tdjson/iOS/include/cocoapod_modulemap.tar.gz .
       - uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
