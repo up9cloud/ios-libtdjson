@@ -10,9 +10,15 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - run: ./build.sh
-      - run: |
+      - name: install.tar.gz
+        run: |
           tar -czvf install.tar.gz install
+      - name: libtdjson.xcframework.tar.gz
+        run: |
           tar -czvf libtdjson.xcframework.tar.gz libtdjson.xcframework
+      - name: cocoapod.tar.gz
+        run: |
+          tar -czvf cocoapod.tar.gz LICENSE libtdjson.xcframework
       - name: cocoapod_modulemap.tar.gz
         run: |
           cp module.modulemap install/tdjson/iOS/include/
@@ -24,12 +30,13 @@ jobs:
       - uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: "install.tar.gz,libtdjson.xcframework.tar.gz,cocoapod_modulemap.tar.gz"
+          artifacts: "install.tar.gz,libtdjson.xcframework.tar.gz,cocoapod.tar.gz,cocoapod_modulemap.tar.gz"
           token: ${{ secrets.GITHUB_TOKEN }}
           body: |
             - `install.tar.gz`: Dev pack including everything for all platforms
             - `libtdjson.xcframework.tar.gz`: Dynamic libraries packed as xcframework for all platforms
-            - `cocoapod_modulemap.tar.gz`: Example module files for CocoaPods
+            - `cocoapod.tar.gz`: Files for CocoaPods, see ./libtdjson.podspec
+            - `cocoapod_modulemap.tar.gz`: Example module files for CocoaPods# Building step need much more time, so We do this first to safe time, just in case what if this failed
       - name: pod trunk push
         run: |
           pod trunk push --allow-warnings libtdjson.podspec

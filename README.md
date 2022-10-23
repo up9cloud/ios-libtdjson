@@ -104,6 +104,7 @@ install_name_tool -id @rpath/libtdjson.dylib libtdjson.dylib
 
 ## TODO
 
+- [ ] Package static lib for App Store
 - [ ] Support [Carthage](https://github.com/Carthage/Carthage/blob/master/Documentation/Artifacts.md#cartfile)
 - [x] Support M1 (Apple Silicon) - migrate to XCFramework, see [PR 1620](https://github.com/tdlib/td/pull/1620)
 
@@ -123,4 +124,15 @@ install_name_tool -id @rpath/libtdjson.dylib libtdjson.dylib
 export GITHUB_REF=refs/tags/<the version>
 pod trunk push --allow-warnings libtdjson.podspec
 pod trunk push --allow-warnings flutter_libtdjson.podspec
+```
+
+> what if need commit more fixing things...
+
+```bash
+git push --delete origin <the version tag>
+git tag -d v0.3.0
+git add .
+git commit -m "..."
+git tag -d <the version tag>
+git push && git push --tags
 ```
