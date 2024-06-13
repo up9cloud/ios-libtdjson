@@ -118,7 +118,7 @@ install_name_tool -id @rpath/libtdjson.dylib libtdjson.dylib
 - Modify the version for git checkout in `./build.sh`
 - Update the `Lib versions` part in `./README.md`
 - Git commit (message example: `bump td to vx.x.x`)
-- Git add tag (`git tag vx.x.x`, the version should be the version on cocoapod)
+- Git add tag (`git tag vx.x.x`, the tag version should be the version on cocoapod)
 - Push with tags (`git push && git push --tags`)
 - Wait for CI task
 

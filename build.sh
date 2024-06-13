@@ -135,10 +135,10 @@ for platform in $platforms; do
 		# 	SKIP_INSTALL=NO \
 		# 	BUILD_LIBRARY_FOR_DISTRIBUTION=YES
 
-		for a in $install_dir/lib/*.a; do
-			abs_path="$(grealpath "${a}")"
-			xcodebuild_more_options="$xcodebuild_more_options -library $abs_path"
-		done
+		# for a in $install_dir/lib/*.a; do
+		# 	abs_path="$(grealpath "${a}")"
+		# 	xcodebuild_more_options="$xcodebuild_more_options -library $abs_path"
+		# done
 		abs_path="$(grealpath "$install_dir/lib/libtdjson.dylib")"
 		install_name_tool -id @rpath/libtdjson.dylib $abs_path
 		xcodebuild_more_options="$xcodebuild_more_options -library $abs_path"
