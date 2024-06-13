@@ -43,3 +43,4 @@ Carthage/Build
 /td/
 /*.tar.gz
 /libtdjson.xcframework/
+/tmp/

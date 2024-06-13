@@ -6,26 +6,29 @@
 
 ## Lib versions
 
-| pod   | tdlib |
-| ----- | ----- |
-| 0.3.0 | [1.8.7](https://github.com/tdlib/td/tree/a7a17b34b3c8fd3f7f6295f152746beb68f34d83) |
-| 0.2.2 | [1.8.1](https://github.com/tdlib/td/tree/92c2a9c4e521df720abeaa9872e1c2b797d5c93f) |
-| 0.2.1 | [1.7.9](https://github.com/tdlib/td/tree/7d41d9eaa58a6e0927806283252dc9e74eda5512) |
-| 0.2.0 | [1.7.0](https://github.com/tdlib/td/tree/v1.7.0) |
+|  pod  |                                        tdlib                                        |
+| ----- | ----------------------------------------------------------------------------------- |
+| 0.4.0 | [1.8.30](https://github.com/tdlib/td/tree/fab354add5a257a8121a4a7f1ff6b1b9fa9a9073) |
+| 0.3.0 | [1.8.7](https://github.com/tdlib/td/tree/a7a17b34b3c8fd3f7f6295f152746beb68f34d83)  |
+| 0.2.2 | [1.8.1](https://github.com/tdlib/td/tree/92c2a9c4e521df720abeaa9872e1c2b797d5c93f)  |
+| 0.2.1 | [1.7.9](https://github.com/tdlib/td/tree/7d41d9eaa58a6e0927806283252dc9e74eda5512)  |
+| 0.2.0 | [1.7.0](https://github.com/tdlib/td/tree/v1.7.0)                                    |
 
 ## Supported architectures
 
-| Platform      | Architecture |     |
-| ------------- | ------------ | --- |
-| iOS           | armv7        | ❌   |
-|               | armv7s       | ❌   |
-|               | arm64        | ✅   |
-| iOS simulator | i386         | ❌   |
-|               | x86_64       | ✅   |
-|               | arm64 (M1)   | ✅   |
-| macOS         | i386         | ❌   |
-|               | x86_64       | ✅   |
-|               | arm64 (M1)   | ✅   |
+|      Platform      | Architecture |     |
+| ------------------ | ------------ | --- |
+| iOS                | armv7        | ❌   |
+|                    | armv7s       | ❌   |
+|                    | arm64        | ✅   |
+| iOS simulator      | i386         | ❌   |
+|                    | x86_64       | ✅   |
+|                    | arm64 (M1↑)  | ✅   |
+| macOS              | i386         | ❌   |
+|                    | x86_64       | ✅   |
+|                    | arm64 (M1↑)  | ✅   |
+| visionOS           | arm64        | ❌   |
+| visionOS simulator | arm64        | ❌   |
 
 ## Installation
 
@@ -110,15 +113,16 @@ install_name_tool -id @rpath/libtdjson.dylib libtdjson.dylib
 
 ## Dev memo
 
-> Bump the TDLib version
+### Bump the TDLib version
 
-- Modify the commit id for tdlib in `./build.sh`
+- Modify the version for git checkout in `./build.sh`
 - Update the `Lib versions` part in `./README.md`
-- Commit and add tag `git tag vx.x.x`
-- Push
-- Wait for CI build task
+- Git commit (message example: `bump td to vx.x.x`)
+- Git add tag (`git tag vx.x.x`, the version should be the version on cocoapod)
+- Push with tags (`git push && git push --tags`)
+- Wait for CI task
 
-> Manually do `pod trunk push` if CI build failed...
+> If the CI build failed, need manually do `pod trunk push`...
 
 ```bash
 export GITHUB_REF=refs/tags/<the version>
@@ -126,13 +130,14 @@ pod trunk push --allow-warnings libtdjson.podspec
 pod trunk push --allow-warnings flutter_libtdjson.podspec
 ```
 
-> what if need commit more fixing things...
+> what if need to revert the tag...
 
 ```bash
-git push --delete origin <the version tag>
-git tag -d v0.3.0
+version=<the version tag>
+git push --delete origin $version
+git tag -d $version
 git add .
 git commit -m "..."
-git tag -d <the version tag>
+git tag $version
 git push && git push --tags
 ```
