@@ -26,20 +26,7 @@ download_prebuilt_openssl() {
 	# mv $install_root_dir/openssl/visionos $install_root_dir/openssl/visionOS
 	# mv $install_root_dir/openssl/visionsimulator $install_root_dir/openssl/visionOS-simulator
 }
-
-BUILD_ROOT_DIR="$__DIR__/build"
-INSTALL_ROOT_DIR="$__DIR__/install"
-TD_DIR="$__DIR__/td"
-
-# cleanup all
-# rm -fr $BUILD_ROOT_DIR
-# rm -fr $INSTALL_ROOT_DIR
-# rm -fr $TD_DIR
-
-# prepare
-brew install gperf cmake coreutils
-brew ls
-if [ ! -d "$TD_DIR" ]; then
+download_td_source() {
 	cd $__DIR__
 	git clone https://github.com/tdlib/td.git
 	cd td
@@ -52,6 +39,24 @@ if [ ! -d "$TD_DIR" ]; then
 	# - Copy the commit hash from the browser url link (e.q. https://github.com/tdlib/td/commit/<hash>) and paste to following:
 	git checkout fab354add5a257a8121a4a7f1ff6b1b9fa9a9073
 	cd ..
+}
+
+BUILD_ROOT_DIR="$__DIR__/build"
+INSTALL_ROOT_DIR="$__DIR__/install"
+ARCHIVES_ROOT_DIR="$__DIR__/archives"
+TD_DIR="$__DIR__/td"
+
+# cleanup all
+# rm -fr $BUILD_ROOT_DIR
+# rm -fr $INSTALL_ROOT_DIR
+# rm -fr $ARCHIVES_ROOT_DIR
+# rm -fr $TD_DIR
+
+# prepare
+brew install gperf cmake coreutils
+brew ls
+if [ ! -d "$TD_DIR" ]; then
+	download_td_source
 fi
 if [ ! -d "$INSTALL_ROOT_DIR/openssl" ]; then
 	download_prebuilt_openssl $INSTALL_ROOT_DIR
@@ -86,27 +91,30 @@ for platform in $platforms; do
 	install_dir="$INSTALL_ROOT_DIR/tdjson/${platform}"
 	for simulator in $simulators; do
 		if [[ $platform = "macOS" ]]; then
-			ios_platform=""
+			cmake_ios_platform=""
+			xcode_platform="OS"
 		else
 			if [[ $platform = "watchOS" ]]; then
-				ios_platform="WATCH"
+				cmake_ios_platform="WATCH"
 			elif [[ $platform = "tvOS" ]]; then
-				ios_platform="TV"
+				cmake_ios_platform="TV"
 			elif [[ $platform = "visionOS" ]]; then
-				ios_platform="VISION"
+				cmake_ios_platform="VISION"
 			else
-				ios_platform="" #iOS
+				cmake_ios_platform=""
 			fi
+			xcode_platform=$platform
 			if [[ $simulator = "0" ]]; then
-				ios_platform="${ios_platform}OS"
+				cmake_ios_platform="${cmake_ios_platform}OS"
 			else
-				ios_platform="${ios_platform}SIMULATOR"
+				cmake_ios_platform="${cmake_ios_platform}SIMULATOR"
+				xcode_platform="${cmake_ios_platform} Simulator"
 
 				openssl_install_path="${openssl_install_path}-simulator"
 				build_dir="${build_dir}-simulator"
 				install_dir="${install_dir}-simulator"
 			fi
-			more_options="$more_options -DIOS_PLATFORM=${ios_platform}"
+			more_options="$more_options -DIOS_PLATFORM=${cmake_ios_platform}"
 		fi
 		openssl_crypto_library="${openssl_install_path}/lib/libcrypto.a"
 		openssl_ssl_library="${openssl_install_path}/lib/libssl.a"
@@ -134,14 +142,26 @@ for platform in $platforms; do
 		# 	-destination generic/platform=iOS \
 		# 	SKIP_INSTALL=NO \
 		# 	BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+		# https://developer.apple.com/documentation/xcode/creating-a-multi-platform-binary-framework-bundle
+		# xcodebuild archive \
+		# 	-scheme libtdjson \
+		# 	-destination "generic/platform=$xcode_platform" \
+		# 	-archivePath "$ARCHIVES_ROOT_DIR/libtdjson-${xcode_platform}"
+		# xcodebuild_more_options="$xcodebuild_more_options -archive $ARCHIVES_ROOT_DIR/libtdjson-${xcode_platform}.xcarchive -framework libtdjson.framework"
 
 		# for a in $install_dir/lib/*.a; do
 		# 	abs_path="$(grealpath "${a}")"
-		# 	xcodebuild_more_options="$xcodebuild_more_options -library $abs_path"
+		# 	file $abs_path
+		# 	xcodebuild_more_options="$xcodebuild_more_options -library $abs_path -headers $install_dir/include"
 		# done
-		abs_path="$(grealpath "$install_dir/lib/libtdjson.dylib")"
-		install_name_tool -id @rpath/libtdjson.dylib $abs_path
-		xcodebuild_more_options="$xcodebuild_more_options -library $abs_path"
+		dylib_path="$install_dir/lib/libtdjson.dylib"
+		abs_path="$(grealpath "$dylib_path")"
+		if [ -h $dylib_path ]; then
+			rm -fr $dylib_path
+			cp $abs_path $dylib_path
+			install_name_tool -id @rpath/libtdjson.dylib $dylib_path
+		fi
+		xcodebuild_more_options="$xcodebuild_more_options -library $dylib_path"
 	done
 done
 

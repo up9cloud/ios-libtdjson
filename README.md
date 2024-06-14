@@ -8,7 +8,7 @@
 
 |  pod  |                                        tdlib                                        |
 | ----- | ----------------------------------------------------------------------------------- |
-| 0.4.0 | [1.8.30](https://github.com/tdlib/td/tree/fab354add5a257a8121a4a7f1ff6b1b9fa9a9073) |
+| 0.4.1 | [1.8.30](https://github.com/tdlib/td/tree/fab354add5a257a8121a4a7f1ff6b1b9fa9a9073) |
 | 0.3.0 | [1.8.7](https://github.com/tdlib/td/tree/a7a17b34b3c8fd3f7f6295f152746beb68f34d83)  |
 | 0.2.2 | [1.8.1](https://github.com/tdlib/td/tree/92c2a9c4e521df720abeaa9872e1c2b797d5c93f)  |
 | 0.2.1 | [1.7.9](https://github.com/tdlib/td/tree/7d41d9eaa58a6e0927806283252dc9e74eda5512)  |
@@ -128,6 +128,12 @@ install_name_tool -id @rpath/libtdjson.dylib libtdjson.dylib
 export GITHUB_REF=refs/tags/<the version>
 pod trunk push --allow-warnings libtdjson.podspec
 pod trunk push --allow-warnings flutter_libtdjson.podspec
+```
+
+> Find pod info
+
+```bash
+pod trunk info libtdjson
 ```
 
 > what if need to revert the tag...
