@@ -8,6 +8,7 @@
 
 |  pod  |                                        tdlib                                          |
 | ----- | ------------------------------------------------------------------------------------- |
+| 0.4.3 | [1.8.47](https://github.com/tdlib/td/commit/a03a90470d6fca9a5a3db747ba3f3e4a465b5fe7) |
 | 0.4.2 | [1.8.31](https://github.com/tdlib/td/commit/8f19c751dc296cedb9a921badb7a02a8c0cb1aeb) |
 | 0.4.1 | [1.8.30](https://github.com/tdlib/td/commit/fab354add5a257a8121a4a7f1ff6b1b9fa9a9073) |
 | 0.3.0 | [1.8.7](https://github.com/tdlib/td/commit/a7a17b34b3c8fd3f7f6295f152746beb68f34d83)  |
@@ -21,10 +22,10 @@
 | ------------------ | ------------ | --- |
 | iOS                | armv7        | ❌   |
 |                    | armv7s       | ❌   |
-|                    | arm64        | ✅   |
+|                    | arm64        | ⛔   |
 | iOS simulator      | i386         | ❌   |
-|                    | x86_64       | ✅   |
-|                    | arm64 (M1↑)  | ✅   |
+|                    | x86_64       | ⛔   |
+|                    | arm64 (M1↑)  | ⛔   |
 | macOS              | i386         | ❌   |
 |                    | x86_64       | ✅   |
 |                    | arm64 (M1↑)  | ✅   |
@@ -39,6 +40,8 @@
 | visionOS           | arm64        | ❌   |
 | visionOS simulator | x86_64       | ❌   |
 |                    | arm64        | ❌   |
+
+⛔ is about dylib, see https://developer.apple.com/library/archive/technotes/tn2435/_index.html#//apple_ref/doc/uid/DTS40017543-CH1-PROJ_CONFIG-APPS_WITH_DEPENDENCIES_BETWEEN_FRAMEWORKS
 
 ## Installation
 

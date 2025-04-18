@@ -10,17 +10,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: ./build.sh
-      - name: install.tar.gz
-        run: |
+      - run: |
           tar -czvf install.tar.gz install
-      - name: libtdjson.xcframework.tar.gz
-        run: |
+      - run: |
           tar -czvf libtdjson.xcframework.tar.gz libtdjson.xcframework
-      - name: cocoapod.tar.gz
-        run: |
+      - run: |
           tar -czvf cocoapod.tar.gz LICENSE libtdjson.xcframework
-      - name: cocoapod_modulemap.tar.gz
-        run: |
+      - run: |
           cp module.modulemap install/tdjson/iOS/include/
           cd install/tdjson/iOS/include
           tar -czvf cocoapod_modulemap.tar.gz module.modulemap td/telegram/td_json_client.h td/telegram/tdjson_export.h
