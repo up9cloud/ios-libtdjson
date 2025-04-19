@@ -135,10 +135,22 @@ install_name_tool -id @rpath/libtdjson.dylib libtdjson.dylib
 - Push with tags (`git push && git push --tags`)
 - Wait for CI task
 
-> If the CI build failed, need manually do `pod trunk push`...
+> If the CI build failed
+
+> `[!] Authentication token is invalid or unverified. Either verify it with the email that was sent or register a new session.`
 
 ```bash
-export GITHUB_REF=refs/tags/<the version>
+# get user info: https://trunk.cocoapods.org/api/v1/pods/libtdjson
+pod trunk register <email> '<name>'
+pod trunk me
+cat ~/.netrc | grep -A 2 trunk.cocoapods.org # get token (password)
+# update github secret
+```
+
+> Manually update pod
+
+```bash
+export GITHUB_REF=refs/tags/<the version tag>
 pod trunk push --allow-warnings libtdjson.podspec
 pod trunk push --allow-warnings flutter_libtdjson.podspec
 ```
