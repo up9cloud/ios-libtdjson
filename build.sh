@@ -53,9 +53,6 @@ TD_DIR="$__DIR__/td"
 # rm -fr $TD_DIR
 
 # prepare
-brew install make gperf cmake coreutils
-export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
-brew ls
 if [ ! -d "$TD_DIR" ]; then
 	download_td_source
 fi

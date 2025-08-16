@@ -9,6 +9,9 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      - run: |
+          brew install gperf cmake coreutils
+          echo "$(brew --prefix coreutils)/libexec/gnubin" >> $GITHUB_PATH
       - run: ./build.sh
       - run: |
           tar -czvf install.tar.gz install
