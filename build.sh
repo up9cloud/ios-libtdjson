@@ -53,7 +53,7 @@ TD_DIR="$__DIR__/td"
 # rm -fr $TD_DIR
 
 # prepare
-brew install gperf cmake coreutils
+brew install make gperf cmake coreutils
 brew ls
 if [ ! -d "$TD_DIR" ]; then
 	download_td_source
