@@ -82,7 +82,7 @@ for platform in $platforms; do
 		more_options="-DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES='x86_64;arm64'"
 	else
 		simulators="0 1"
-		more_options="-DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_TOOLCHAIN_FILE=${TD_DIR}/CMake/iOS.cmake"
+		more_options="-DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_TOOLCHAIN_FILE=${TD_DIR}/CMake/iOS.cmake -DCMAKE_MAKE_PROGRAM=make"
 	fi
 	openssl_install_path="$INSTALL_ROOT_DIR/openssl/${platform}"
 	build_dir="$BUILD_ROOT_DIR/${platform}"
