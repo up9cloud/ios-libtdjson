@@ -6,16 +6,22 @@
 
 ## Lib versions
 
-|  pod  |                                        tdlib                                          |
-| ----- | ------------------------------------------------------------------------------------- |
+|  pod   |                                        tdlib                                          |
+| ------ | ------------------------------------------------------------------------------------- |
+| 1.8.65 | [1.8.65](https://github.com/tdlib/td/commit/a8f21f5230172634becc1739050ef23ecd6ea291) |
 | 1.8.52 | [1.8.52](https://github.com/tdlib/td/commit/a03a90470d6fca9a5a3db747ba3f3e4a465b5fe7) |
-| 0.4.3 | [1.8.47](https://github.com/tdlib/td/commit/a03a90470d6fca9a5a3db747ba3f3e4a465b5fe7) |
-| 0.4.2 | [1.8.31](https://github.com/tdlib/td/commit/8f19c751dc296cedb9a921badb7a02a8c0cb1aeb) |
-| 0.4.1 | [1.8.30](https://github.com/tdlib/td/commit/fab354add5a257a8121a4a7f1ff6b1b9fa9a9073) |
-| 0.3.0 | [1.8.7](https://github.com/tdlib/td/commit/a7a17b34b3c8fd3f7f6295f152746beb68f34d83)  |
-| 0.2.2 | [1.8.1](https://github.com/tdlib/td/commit/92c2a9c4e521df720abeaa9872e1c2b797d5c93f)  |
-| 0.2.1 | [1.7.9](https://github.com/tdlib/td/commit/7d41d9eaa58a6e0927806283252dc9e74eda5512)  |
-| 0.2.0 | [1.7.0](https://github.com/tdlib/td/tree/v1.7.0)                                      |
+| 0.4.3  | [1.8.47](https://github.com/tdlib/td/commit/a03a90470d6fca9a5a3db747ba3f3e4a465b5fe7) |
+| 0.4.2  | [1.8.31](https://github.com/tdlib/td/commit/8f19c751dc296cedb9a921badb7a02a8c0cb1aeb) |
+| 0.4.1  | [1.8.30](https://github.com/tdlib/td/commit/fab354add5a257a8121a4a7f1ff6b1b9fa9a9073) |
+| 0.3.0  | [1.8.7](https://github.com/tdlib/td/commit/a7a17b34b3c8fd3f7f6295f152746beb68f34d83)  |
+| 0.2.2  | [1.8.1](https://github.com/tdlib/td/commit/92c2a9c4e521df720abeaa9872e1c2b797d5c93f)  |
+| 0.2.1  | [1.7.9](https://github.com/tdlib/td/commit/7d41d9eaa58a6e0927806283252dc9e74eda5512)  |
+| 0.2.0  | [1.7.0](https://github.com/tdlib/td/tree/v1.7.0)                                      |
+
+Notes:
+
+- Since **v1.8.52**, the git tag / pod version matches the tdlib version it wraps (before that, the pod used its own `0.x.y` numbering).
+- Since **v1.8.65**, releases ship a static `libtdjson.a` (via `libtdjson-static.xcframework`) alongside the dylib — see [dylib vs static .a](#dylib-vs-static-a).
 
 ## Supported architectures
 
@@ -74,7 +80,7 @@ end
 
 #### dylib vs static .a
 
-Starting from v1.8.52, the pod ships **both** variants:
+Starting from v1.8.65, the pod ships **both** variants:
 
 | xcframework                     | Contents                                                                                         |
 | ------------------------------- | ------------------------------------------------------------------------------------------------ |
@@ -157,7 +163,7 @@ install_name_tool -id @rpath/libtdjson.dylib libtdjson.dylib
 
 ## TODO
 
-- [x] Package static lib for App Store (since v1.8.52, see `libtdjson-static.xcframework`)
+- [x] Package static lib for App Store (since v1.8.65, see `libtdjson-static.xcframework`)
 - [ ] Support [Carthage](https://github.com/Carthage/Carthage/blob/master/Documentation/Artifacts.md#cartfile)
 - [x] Support M1 (Apple Silicon) - migrate to XCFramework, see [PR 1620](https://github.com/tdlib/td/pull/1620)
 
