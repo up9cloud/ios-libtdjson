@@ -26,7 +26,9 @@ Pod::Spec.new do |s|
   s.osx.vendored_frameworks = 'libtdjson.xcframework'
   s.ios.vendored_frameworks = 'libtdjson-static.xcframework'
   s.preserve_paths          = ['libtdjson.xcframework', 'libtdjson-static.xcframework']
-  s.osx.deployment_target = '10.11'
-  s.ios.deployment_target = '9.0'
-  s.ios.pod_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
+  # Bumped to the minimums Xcode still accepts (Xcode 15+ range: macOS 10.13+,
+  # iOS 12.0+). The compiled binaries themselves target lower — these are
+  # just the floor CocoaPods advertises to consumers.
+  s.osx.deployment_target = '10.13'
+  s.ios.deployment_target = '12.0'
 end
