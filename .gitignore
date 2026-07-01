@@ -43,4 +43,10 @@ Carthage/Build
 /td/
 /*.tar.gz
 /libtdjson.xcframework/
+/libtdjson-static.xcframework/
 /tmp/
+
+# Claude Code
+/.claude/
+/.claude.json
+/.claude.json.backup

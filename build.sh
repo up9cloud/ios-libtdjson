@@ -4,6 +4,17 @@
 
 __DIR__="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 
+BUILD_ROOT_DIR="$__DIR__/build"
+INSTALL_ROOT_DIR="$__DIR__/install"
+ARCHIVES_ROOT_DIR="$__DIR__/archives"
+TD_DIR="$__DIR__/td"
+
+# cleanup all
+# rm -fr $BUILD_ROOT_DIR
+# rm -fr $INSTALL_ROOT_DIR
+# rm -fr $ARCHIVES_ROOT_DIR
+# rm -fr $TD_DIR
+
 # https://github.com/beeware/Python-Apple-support/releases/download/3.9-b3/Python-3.9-$platform-support.b3.tar.gz will Cause error: ...libOpenSSL.a(bss_mem.o), building for iOS, but linking in object file (.../libOpenSSL.a(bss_mem.o)) built for macOS, for architecture arm64
 download_prebuilt_openssl() {
 	local install_root_dir="$1"
@@ -41,17 +52,6 @@ download_td_source() {
 	cd ..
 }
 
-BUILD_ROOT_DIR="$__DIR__/build"
-INSTALL_ROOT_DIR="$__DIR__/install"
-ARCHIVES_ROOT_DIR="$__DIR__/archives"
-TD_DIR="$__DIR__/td"
-
-# cleanup all
-# rm -fr $BUILD_ROOT_DIR
-# rm -fr $INSTALL_ROOT_DIR
-# rm -fr $ARCHIVES_ROOT_DIR
-# rm -fr $TD_DIR
-
 # prepare
 if [ ! -d "$TD_DIR" ]; then
 	download_td_source
@@ -76,6 +76,7 @@ else
 	platforms="$1"
 fi
 xcodebuild_more_options=""
+xcodebuild_static_more_options=""
 for platform in $platforms; do
 	if [[ $platform = "macOS" ]]; then
 		simulators="0"
@@ -160,6 +161,23 @@ for platform in $platforms; do
 			install_name_tool -id @rpath/libtdjson.dylib $dylib_path
 		fi
 		xcodebuild_more_options="$xcodebuild_more_options -library $dylib_path"
+
+		# Merge every static archive tdjson_static depends on (tdcore, tdactor,
+		# tddb, tdnet, tdutils, tdsqlite, tdapi, tdjson_private, tdclient, ...)
+		# AND OpenSSL (libssl.a + libcrypto.a) into a single libtdjson.a.
+		# Without this, libtdjson_static.a alone has unresolved symbols for
+		# every tdlib subsystem and for OpenSSL. The dylib already bundles all
+		# of these internally — the merged .a is the static equivalent.
+		# xcodebuild requires -headers alongside -library for static archives.
+		combined_dir="$install_dir/combined"
+		mkdir -p "$combined_dir"
+		combined_a="$combined_dir/libtdjson.a"
+		rm -f "$combined_a"
+		libtool -static -no_warning_for_no_symbols -o "$combined_a" \
+			"$install_dir"/lib/libtd*.a \
+			"$openssl_install_path/lib/libcrypto.a" \
+			"$openssl_install_path/lib/libssl.a" || exit 1
+		xcodebuild_static_more_options="$xcodebuild_static_more_options -library $combined_a -headers $install_dir/include"
 	done
 done
 
@@ -172,3 +190,9 @@ rm -fr "$__DIR__/libtdjson.xcframework"
 xcodebuild -create-xcframework \
 	${xcodebuild_more_options} \
 	-output "$__DIR__/libtdjson.xcframework"
+
+echo $xcodebuild_static_more_options
+rm -fr "$__DIR__/libtdjson-static.xcframework"
+xcodebuild -create-xcframework \
+	${xcodebuild_static_more_options} \
+	-output "$__DIR__/libtdjson-static.xcframework"

@@ -8,6 +8,7 @@
 
 |  pod  |                                        tdlib                                          |
 | ----- | ------------------------------------------------------------------------------------- |
+| 1.8.52 | [1.8.52](https://github.com/tdlib/td/commit/a03a90470d6fca9a5a3db747ba3f3e4a465b5fe7) |
 | 0.4.3 | [1.8.47](https://github.com/tdlib/td/commit/a03a90470d6fca9a5a3db747ba3f3e4a465b5fe7) |
 | 0.4.2 | [1.8.31](https://github.com/tdlib/td/commit/8f19c751dc296cedb9a921badb7a02a8c0cb1aeb) |
 | 0.4.1 | [1.8.30](https://github.com/tdlib/td/commit/fab354add5a257a8121a4a7f1ff6b1b9fa9a9073) |
@@ -22,10 +23,10 @@
 | ------------------ | ------------ | --- |
 | iOS                | armv7        | ❌   |
 |                    | armv7s       | ❌   |
-|                    | arm64        | ⛔   |
+|                    | arm64        | ✅⛔ |
 | iOS simulator      | i386         | ❌   |
-|                    | x86_64       | ⛔   |
-|                    | arm64 (M1↑)  | ⛔   |
+|                    | x86_64       | ✅⛔ |
+|                    | arm64 (M1↑)  | ✅⛔ |
 | macOS              | i386         | ❌   |
 |                    | x86_64       | ✅   |
 |                    | arm64 (M1↑)  | ✅   |
@@ -41,7 +42,17 @@
 | visionOS simulator | x86_64       | ❌   |
 |                    | arm64        | ❌   |
 
-⛔ is about dylib, see https://developer.apple.com/library/archive/technotes/tn2435/_index.html#//apple_ref/doc/uid/DTS40017543-CH1-PROJ_CONFIG-APPS_WITH_DEPENDENCIES_BETWEEN_FRAMEWORKS
+✅ marks slices that are actually built (the static `.a` works on all of them; the dylib is included too, subject to the caveats below).
+
+⛔ marks the dylib caveats that apply to iOS:
+
+- **App Store**: iOS apps that ship a custom `.dylib` are rejected. Link the static `libtdjson.a` (from `libtdjson-static.xcframework`) instead. See [TN2435](https://developer.apple.com/library/archive/technotes/tn2435/_index.html#//apple_ref/doc/uid/DTS40017543-CH1-PROJ_CONFIG-APPS_WITH_DEPENDENCIES_BETWEEN_FRAMEWORKS).
+- **iOS simulator**: the dylib runs, but it isn't copied into the built `.app`'s `Frameworks/` automatically — you need to symlink it in yourself. Example (Flutter):
+
+  ```bash
+  ln -s $(pwd)/build/ios/Debug-iphonesimulator/XCFrameworkIntermediates/flutter_libtdjson/libtdjson.dylib \
+    ~/Library/Developer/CoreSimulator/Devices/<DEVICE-UUID>/data/Containers/Bundle/Application/<APP-UUID>/Runner.app/Frameworks/libtdjson.dylib
+  ```
 
 ## Installation
 
@@ -61,9 +72,29 @@ Pod::Spec.new do |s|
 end
 ```
 
+#### dylib vs static .a
+
+Starting from v1.8.52, the pod ships **both** variants:
+
+| xcframework                     | Contents                                                                                         |
+| ------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `libtdjson.xcframework`         | `libtdjson.dylib` — dynamic library, OpenSSL statically linked inside                            |
+| `libtdjson-static.xcframework`  | `libtdjson.a` — single merged archive of all tdlib `.a` files + `libssl.a` + `libcrypto.a`       |
+
+The pod links the right one for you automatically:
+
+- **macOS** → `libtdjson.dylib`
+- **iOS** → `libtdjson.a` (App Store rejects custom dylibs, see [TN2435](https://developer.apple.com/library/archive/technotes/tn2435/_index.html#//apple_ref/doc/uid/DTS40017543-CH1-PROJ_CONFIG-APPS_WITH_DEPENDENCIES_BETWEEN_FRAMEWORKS))
+
+Either way you `import libtdjson` (or include `td_json_client.h`) the same way — the `td_json_client_*` / `td_*` symbols are identical. No code changes needed when switching.
+
+##### Overriding the default
+
+Both xcframeworks ship inside the pod (via `cocoapod.tar.gz`), so if the default doesn't fit — e.g. you want the dylib on iOS simulator for debugging — the simplest path is to skip the pod for that platform and drag the desired `.xcframework` in by hand from the [release assets](#manually).
+
 ### Use it as module (iOS, swift)
 
-Because this pod **only** provide .dylib files (to prevent module name conflicts and keep it simplest!), if you want to use it as module (e.q. on iOS with swift), you **have to** add some necessary files:
+The pod itself doesn't ship a `module.modulemap` (to prevent module name conflicts and keep the pod as small as possible), so if you want to use it as a Swift module you **have to** add some necessary files:
 
 - Download example `headers` and `module.modulemap`
 
@@ -72,10 +103,10 @@ curl -SLO https://github.com/up9cloud/ios-libtdjson/releases/download/v0.2.2/coc
 mkdir include
 tar xzf cocoapod_modulemap.tar.gz -C include
 
-# Edit files to whatever you want, e.q. change the module name or remove export symbols you don't need
+# Edit files to whatever you want, e.g. change the module name or remove export symbols you don't need
 ```
 
-- Add include path and link lib, e.q.
+- Add include path and link lib, e.g.
 
 ```ruby
 Pod::Spec.new do |s|
@@ -102,13 +133,19 @@ TODO:
 
 ### Manually
 
-Download prebuilt files from `Release`, then do whatever you want.
+Download prebuilt files from `Release`:
+
+- `libtdjson.xcframework.tar.gz` — dynamic (`libtdjson.dylib`, OpenSSL inside)
+- `libtdjson-static.xcframework.tar.gz` — static (`libtdjson.a`, every tdlib subsystem + OpenSSL merged into one archive)
+- `install.tar.gz` — both, plus per-platform unpackaged `.dylib` / individual `.a` files / headers (if you want to mix and match yourself)
+
+Pick whichever matches your linking strategy and drag the `.xcframework` into your Xcode project. Nothing else to link — both are self-contained.
 
 ## Q&A
 
 > An error was encountered processing the command (domain=FBSOpenApplicationServiceErrorDomain,code=1):
 
-The app will crash if identification name of .dylib isn't correct
+(Dylib only — does not apply to the static `.a`.) The app will crash if the install name of the `.dylib` isn't set correctly.
 
 ```bash
 # check id
@@ -120,7 +157,7 @@ install_name_tool -id @rpath/libtdjson.dylib libtdjson.dylib
 
 ## TODO
 
-- [ ] Package static lib for App Store
+- [x] Package static lib for App Store (since v1.8.52, see `libtdjson-static.xcframework`)
 - [ ] Support [Carthage](https://github.com/Carthage/Carthage/blob/master/Documentation/Artifacts.md#cartfile)
 - [x] Support M1 (Apple Silicon) - migrate to XCFramework, see [PR 1620](https://github.com/tdlib/td/pull/1620)
 
@@ -147,7 +184,7 @@ cat ~/.netrc | grep -A 2 trunk.cocoapods.org # get token (password)
 # update github secret
 ```
 
-> Manually update pod
+> Manually update the pod, if publishing to the pod fails.
 
 ```bash
 export GITHUB_REF=refs/tags/<the version tag>

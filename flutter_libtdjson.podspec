@@ -17,7 +17,10 @@ Pod::Spec.new do |s|
   s.author           = { 'up9cloud' => '8325632+up9cloud@users.noreply.github.com' }
   s.source           = { :http => "https://github.com/up9cloud/ios-libtdjson/releases/download/v#{_VERSION}/cocoapod.tar.gz" }
 
-  s.vendored_frameworks = 'libtdjson.xcframework'
+  # See libtdjson.podspec for details on what these ship.
+  s.osx.vendored_frameworks = 'libtdjson.xcframework'
+  s.ios.vendored_frameworks = 'libtdjson-static.xcframework'
+  s.preserve_paths          = ['libtdjson.xcframework', 'libtdjson-static.xcframework']
   s.osx.deployment_target = '10.11'
   s.ios.deployment_target = '9.0'
   s.ios.pod_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
